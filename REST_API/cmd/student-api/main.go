@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/atomhudson/go_lang/student-api/internal/config"
+	"github.com/atomhudson/go_lang/student-api/internal/http/handlers/student"
 )
 
 func main() {
@@ -21,9 +22,9 @@ func main() {
 	// database setup
 	// setup router
 	router := http.NewServeMux()
-	router.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("welcome to the student api"))
-	})
+
+	router.HandleFunc("POST /api/students", student.NewStudent())
+
 	// http server setup
 	server := http.Server{
 		Addr:    cfg.HTTPServer.Addr,
@@ -35,7 +36,7 @@ func main() {
 
 	done := make(chan os.Signal, 1)
 
-	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM, os.Kill)
+	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
 	go func() {
 		err := server.ListenAndServe()
