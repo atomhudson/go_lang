@@ -2,8 +2,10 @@ package sqlite
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/atomhudson/go_lang/student-api/internal/config"
+	"github.com/atomhudson/go_lang/student-api/internal/types"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -30,4 +32,39 @@ func New(cfg *config.Config) (*Sqlite, error) {
 
 	return &Sqlite{Db: db}, nil
 
+}
+
+func (s *Sqlite) CreateStudent(name string, email string, phone string, age int) (int, error) {
+
+	stmt, err := s.Db.Prepare("INSERT INTO students (name, email, phone, age) VALUES (?, ?, ?, ?)")
+	if err != nil {
+		return 0, err
+	}
+	defer stmt.Close()
+	res, err := stmt.Exec(name, email, phone, age)
+	if err != nil {
+		return 0, err
+	}
+	id, err := res.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+	return int(id), nil
+}
+
+func (s *Sqlite) GetStudentById(id int64) (types.Student, error) {
+	stmt, err := s.Db.Prepare("SELECT id, name, email, phone, age FROM students WHERE id = ?")
+	if err != nil {
+		return types.Student{}, err
+	}
+	defer stmt.Close()
+	var student types.Student
+	err = stmt.QueryRow(id).Scan(&student.ID, &student.Name, &student.Email, &student.Phone, &student.Age)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return types.Student{}, fmt.Errorf("student with id %d not found", id)
+		}
+		return types.Student{}, err
+	}
+	return student, nil
 }
