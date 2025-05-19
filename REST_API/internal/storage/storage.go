@@ -7,4 +7,5 @@ import (
 type Storage interface {
 	CreateStudent(name string, email string, phone string, age int) (int, error)
 	GetStudentById(id int64) (types.Student, error)
+	GetStudentsList() ([]types.Student, error)
 }

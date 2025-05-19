@@ -71,3 +71,18 @@ func GetStudents(storage storage.Storage) http.HandlerFunc {
 		response.WriteJson(w, http.StatusOK, response.Success(student))
 	}
 }
+
+func GetStudentsList(storage storage.Storage) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		slog.Info(`router.HandleFunc("GET /api/students", student.GetStudents())`)
+		slog.Info("getting all students")
+		students, err := storage.GetStudentsList()
+		if err != nil {
+			slog.Info("failed to get students")
+			response.WriteJson(w, http.StatusInternalServerError, response.GeneralError(err, "failed to get students"))
+			return
+		}
+		slog.Info("students found", slog.Any("students", students))
+		response.WriteJson(w, http.StatusOK, response.Success(students))
+	}
+}
