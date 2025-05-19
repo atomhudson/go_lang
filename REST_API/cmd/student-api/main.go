@@ -13,6 +13,7 @@ import (
 
 	"github.com/atomhudson/go_lang/student-api/internal/config"
 	"github.com/atomhudson/go_lang/student-api/internal/http/handlers/student"
+	"github.com/atomhudson/go_lang/student-api/internal/storage/sqlite"
 )
 
 func main() {
@@ -20,6 +21,14 @@ func main() {
 	cfg := config.MustLoad()
 
 	// database setup
+
+	_, err := sqlite.New(cfg)
+	if err != nil {
+		log.Fatalf("failed to create storage: %v", err.Error())
+	}
+
+	slog.Info("Storage initialized successfully", slog.String("env", cfg.Env), slog.String("storage_path", cfg.StoragePath))
+
 	// setup router
 	router := http.NewServeMux()
 
